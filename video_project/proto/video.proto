@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./proto";
+
+service VideoService {
+  rpc UploadVideo (stream VideoChunk) returns (UploadStatus);
+}
+
+message VideoChunk {
+  string filename = 1;
+  bytes content = 2;
+  string content_hash = 3; // For Bonus: Duplicate Detection
+}
+
+message UploadStatus {
+  bool success = 1;
+  string message = 2;
+}

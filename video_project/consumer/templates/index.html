@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Queue</title>
+    <style>
+        body { background: #222; color: #fff; font-family: sans-serif; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #333; padding: 10px; border-radius: 8px; text-align: center; }
+        video { width: 100%; border-radius: 4px; cursor: pointer; background: #000; }
+        p { margin-top: 10px; font-size: 14px; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <h1>Uploaded Videos</h1>
+    <div class="grid" id="videoGrid">
+        </div>
+
+    <script>
+        let currentVideos = []; // Memory of what we are currently showing
+
+        // Function to build a single card HTML
+        function createCard(filename) {
+            return `
+                <div class="card">
+                    <video 
+                        src="/uploads/${filename}#t=0.1" 
+                        preload="auto" 
+                        playsinline 
+                        webkit-playsinline
+                        muted 
+                        loop 
+                        onmouseover="startPreview(this)" 
+                        onmouseout="stopPreview(this)"
+                        onclick="this.requestFullscreen(); this.play();">
+                    </video>
+                    <p>${filename}</p>
+                </div>
+            `;
+        }
+
+        async function fetchVideos() {
+            try {
+                // 1. Ask server for the list of files (JSON)
+                const response = await fetch('/api/videos');
+                const videoList = await response.json();
+
+                // 2. Only update DOM if the list has changed length
+                // (This prevents resetting your view if nothing is new)
+                if (!videoList || videoList.length === currentVideos.length) {
+                    return; // Nothing to do
+                }
+
+                console.log("New videos detected, updating grid...");
+                currentVideos = videoList;
+                
+                // 3. Rebuild the Grid
+                const grid = document.getElementById('videoGrid');
+                grid.innerHTML = videoList.map(createCard).join('');
+
+            } catch (err) {
+                console.error("Failed to fetch videos:", err);
+            }
+        }
+
+        // --- Preview Logic (Same as before) ---
+        let previewTimer;
+        function startPreview(vid) {
+            vid.play();
+            previewTimer = setTimeout(() => vid.pause(), 10000);
+        }
+        function stopPreview(vid) {
+            if (previewTimer) clearTimeout(previewTimer);
+            vid.pause();
+            vid.currentTime = 0;
+        }
+
+        // Check for updates every 2 seconds
+        setInterval(fetchVideos, 2000);
+        
+        // Load immediately on start
+        fetchVideos();
+    </script>
+</body>
+</html>
