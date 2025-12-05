@@ -2,10 +2,10 @@
 
 ## System Requirements
 
-1.  **Producer Machine:** macOS (Apple Silicon / M-Series assumed) with
-    Go installed.\
+1.  **Producer Machine:** macOS Apple Silicon / M-Series assumed) with
+    Go installed.
 2.  **Consumer Machine:** Ubuntu Virtual Machine (ARM64) with FFmpeg
-    installed.\
+    installed.
 3.  **Network:** Both machines must be on the same network (**Bridged
     Adapter recommended**).
 
